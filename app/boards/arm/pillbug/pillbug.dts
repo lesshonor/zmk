@@ -7,8 +7,6 @@
 /dts-v1/;
 
 #include <nordic/nrf52840_qiaa.dtsi>
-#include "pillbug-pinctrl.dtsi"
-#include "blackpill_pins.dtsi"
 
 / {
     model = "PillBug";
