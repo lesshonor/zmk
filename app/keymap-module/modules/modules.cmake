@@ -6,6 +6,8 @@
 #    * or per board/shield.
 
 list(APPEND BOARD_ROOT ${APPLICATION_SOURCE_DIR})
+# Zephyr also adds APPLICATION_SOURCE_DIR to DTS_ROOT, but by tacking it on early Zephyr's copy will be de-duped.
+# This allows roots in modules and user configs to replace/overlay zmk/app.
 list(APPEND DTS_ROOT ${APPLICATION_SOURCE_DIR})
 
 get_property(
@@ -56,9 +58,12 @@ if(ZMK_CONFIG)
   set(ENV{ZMK_CONFIG} "${ZMK_CONFIG}")
   if(EXISTS ${ZMK_CONFIG}/boards)
     message(STATUS "Adding ZMK config directory as board root: ${ZMK_CONFIG}")
-    list(APPEND BOARD_ROOT ${ZMK_CONFIG})
+    # Zephyr uses the first matching board, even if there are other matching candidates.
+    # If a board exists in ZMK_CONFIG that takes precedence, so search it first.
+    list(PREPEND BOARD_ROOT ${ZMK_CONFIG})
   endif()
   if(EXISTS ${ZMK_CONFIG}/dts)
+    # TODO: Does this need to go last?
     message(STATUS "Adding ZMK config directory as DTS root: ${ZMK_CONFIG}")
     list(APPEND DTS_ROOT ${ZMK_CONFIG})
   endif()
@@ -84,12 +89,16 @@ foreach(root ${BOARD_ROOT})
     foreach(overlay ${shield_overlays})
       get_filename_component(shield ${overlay} NAME_WE)
       list(APPEND SHIELD_LIST ${shield})
-      set(SHIELD_DIR_${shield} ${shield_path})
+      # Use the first location found, even if there are other viable candidates.
+      set(SHIELD_DIR_${shield} ${shield_path}
+          CACHE STRING "${shield} location")
     endforeach()
   endforeach()
 
   if(EXISTS "${root}/boards/${BOARD}.overlay")
-    list(APPEND shield_dts_files "${root}/boards/${BOARD}.overlay")
+    # Iteration starts at ZMK_CONFIG and ends at APPLICATION_ROOT_DIR,
+    # To allow ZMK_CONFIG to overlay APPLICATION_ROOT_DIR, prepend overlays.
+    list(PREPEND shield_dts_files "${root}/boards/${BOARD}.overlay")
   endif()
   if(NOT DEFINED BOARD_DIR_NAME)
     find_path(
@@ -140,7 +149,7 @@ endif()
 if(ZMK_CONFIG)
   if(EXISTS ${ZMK_CONFIG})
     message(STATUS "ZMK Config directory: ${ZMK_CONFIG}")
-    list(PREPEND KEYMAP_DIRS "${ZMK_CONFIG}")
+    list(APPEND KEYMAP_DIRS "${ZMK_CONFIG}")
 
     if(DEFINED SHIELD)
       foreach(s ${shield_candidate_names} ${SHIELD_AS_LIST})
@@ -190,20 +199,21 @@ if(NOT KEYMAP_FILE)
     foreach(keymap_prefix ${shield_candidate_names} ${SHIELD_AS_LIST}
                           ${SHIELD_DIR} ${BOARD} ${BOARD_DIR_NAME})
       if(EXISTS ${keymap_dir}/${keymap_prefix}.keymap)
-        set(KEYMAP_FILE
-            "${keymap_dir}/${keymap_prefix}.keymap"
-            CACHE STRING "Selected keymap file")
-        message(STATUS "Using keymap file: ${KEYMAP_FILE}")
-        set(DTC_OVERLAY_FILE ${KEYMAP_FILE})
+        set(KEYMAP_FILE "${keymap_dir}/${keymap_prefix}.keymap")
         break()
       endif()
     endforeach()
   endforeach()
-else()
-  message(STATUS "Using keymap file: ${KEYMAP_FILE}")
-  set(DTC_OVERLAY_FILE ${KEYMAP_FILE})
 endif()
 
-if(NOT KEYMAP_FILE)
+# Intentionally-separated conditional; setting KEYMAP_FILE directly and
+# finding KEYMAP_FILE by searching KEYMAP_DIRS should be handled the same way.
+if(KEYMAP_FILE)
+  # Now that we've settled on a keymap, persist to cache.
+  set(KEYMAP_FILE ${KEYMAP_FILE}
+      CACHE STRING "Selected keymap file")
+  message(STATUS "Using keymap file: ${KEYMAP_FILE}")
+  set(DTC_OVERLAY_FILE ${KEYMAP_FILE})
+else()
   message(WARNING "Failed to locate keymap file!")
 endif()
