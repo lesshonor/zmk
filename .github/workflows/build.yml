@@ -10,7 +10,7 @@ on:
       - ".github/workflows/build.yml"
       - "app/**"
   schedule:
-    - cron: "22 4 * * *"
+    - cron: "20 20 * * *"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'schedule' }}
@@ -294,7 +294,7 @@ jobs:
               });
             }))).flat();
   nightly:
-    if: ${{ github.event_name == 'schedule' && github.repository_owner == 'zmkfirmware' }}
+    if: ${{ github.event_name == 'schedule' && github.repository_owner == 'lesshonor' }}
     runs-on: ubuntu-latest
     needs: get-grouped-hardware
     outputs:
