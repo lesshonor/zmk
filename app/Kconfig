@@ -674,6 +674,9 @@ endmenu
 #ZMK
 endmenu
 
+config COMPILER_TRACK_MACRO_EXPANSION
+    default n
+
 config KERNEL_BIN_NAME
     default "zmk"
 
