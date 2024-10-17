@@ -7,6 +7,7 @@
 /dts-v1/;
 #include <nordic/nrf52840_qiaa.dtsi>
 #include <dt-bindings/zmk/matrix_transform.h>
+#include <physical_layouts.dtsi>
 
 / {
     model = "S40NC";
@@ -17,11 +18,11 @@
         zephyr,sram = &sram0;
         zephyr,flash = &flash0;
         zmk,battery = &vbatt;
-        zmk,kscan = &kscan0;
-        zmk,matrix-transform = &default_transform;
+        zmk,kscan = &kscan;
+        zmk,physical-layout = &default_layout;
     };
 
-    default_transform: keymap_transform_0 {
+    default_transform: default_transform {
         compatible = "zmk,matrix-transform";
         columns = <12>;
         rows = <4>;
@@ -33,8 +34,59 @@
         >;
     };
 
+    default_layout: default_layout {
+        compatible = "zmk,physical-layout";
+        display-name = "Default";
+        transform = <&default_transform>;
 
-    kscan0: kscan {
+        keys  //                     w   h    x    y     rot    rx    ry
+            = <&key_physical_attrs 100 100    0    0       0     0     0>
+            , <&key_physical_attrs 100 100  100    0       0     0     0>
+            , <&key_physical_attrs 100 100  200    0       0     0     0>
+            , <&key_physical_attrs 100 100  300    0       0     0     0>
+            , <&key_physical_attrs 100 100  400    0       0     0     0>
+            , <&key_physical_attrs 100 100  500    0       0     0     0>
+            , <&key_physical_attrs 100 100  600    0       0     0     0>
+            , <&key_physical_attrs 100 100  700    0       0     0     0>
+            , <&key_physical_attrs 100 100  800    0       0     0     0>
+            , <&key_physical_attrs 100 100  900    0       0     0     0>
+            , <&key_physical_attrs 100 100 1000    0       0     0     0>
+            , <&key_physical_attrs 100 100 1100    0       0     0     0>
+            , <&key_physical_attrs 125 100    0  100       0     0     0>
+            , <&key_physical_attrs 100 100  125  100       0     0     0>
+            , <&key_physical_attrs 100 100  225  100       0     0     0>
+            , <&key_physical_attrs 100 100  325  100       0     0     0>
+            , <&key_physical_attrs 100 100  425  100       0     0     0>
+            , <&key_physical_attrs 100 100  525  100       0     0     0>
+            , <&key_physical_attrs 100 100  625  100       0     0     0>
+            , <&key_physical_attrs 100 100  725  100       0     0     0>
+            , <&key_physical_attrs 100 100  825  100       0     0     0>
+            , <&key_physical_attrs 100 100  925  100       0     0     0>
+            , <&key_physical_attrs 175 100 1025  100       0     0     0>
+            , <&key_physical_attrs 175 100    0  200       0     0     0>
+            , <&key_physical_attrs 100 100  175  200       0     0     0>
+            , <&key_physical_attrs 100 100  275  200       0     0     0>
+            , <&key_physical_attrs 100 100  375  200       0     0     0>
+            , <&key_physical_attrs 100 100  475  200       0     0     0>
+            , <&key_physical_attrs 100 100  575  200       0     0     0>
+            , <&key_physical_attrs 100 100  675  200       0     0     0>
+            , <&key_physical_attrs 100 100  775  200       0     0     0>
+            , <&key_physical_attrs 100 100  875  200       0     0     0>
+            , <&key_physical_attrs 100 100  975  200       0     0     0>
+            , <&key_physical_attrs 125 100 1075  200       0     0     0>
+            , <&key_physical_attrs 100 100    0  300       0     0     0>
+            , <&key_physical_attrs 100 100  100  300       0     0     0>
+            , <&key_physical_attrs 100 100  200  300       0     0     0>
+            , <&key_physical_attrs 225 100  300  300       0     0     0>
+            , <&key_physical_attrs 100 100  525  300       0     0     0>
+            , <&key_physical_attrs 275 100  625  300       0     0     0>
+            , <&key_physical_attrs 100 100  900  300       0     0     0>
+            , <&key_physical_attrs 100 100 1000  300       0     0     0>
+            , <&key_physical_attrs 100 100 1100  300       0     0     0>
+            ;
+    };
+
+    kscan: kscan {
         compatible = "zmk,kscan-gpio-matrix";
         wakeup-source;
 
